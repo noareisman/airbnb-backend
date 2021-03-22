@@ -16,8 +16,8 @@ async function getStays(req, res) {
 
 async function getStayById(req, res) {
     try {
-        const StayId = req.params.StayId
-        const stay = await stayService.getById(StayId)
+        const stayId = req.params.stayId
+        const stay = await stayService.getById(stayId)
         res.json(stay)
 
     } catch (err) {
@@ -43,7 +43,9 @@ async function deleteStay(req, res) {
 async function addStay(req, res) {
     try {
         var stay = req.body
+        console.log(req.session)
         const {_id , fullname, imgUrl} = req.session.user
+        
         stay.host = {_id , fullname, imgUrl}
         stay = await stayService.add(stay)     
         // prepare the updated review for sending out

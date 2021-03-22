@@ -9,7 +9,7 @@ const router = express.Router()
 
 router.get('/', log,  getStays)
 router.get('/:stayId', log, getStayById)
-router.post('/', log, requireAuth, addStay)
+router.post('/', log, addStay)
 router.delete('/:stayId',  requireAuth, deleteStay)
 router.put('/:toyId', log, requireAuth, updateStay)
 

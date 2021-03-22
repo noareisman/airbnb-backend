@@ -1,6 +1,8 @@
 const dbService = require('../../services/db.service')
 const ObjectId = require('mongodb').ObjectId
 const asyncLocalStorage = require('../../services/als.service')
+const logger = require('../../services/logger.service')
+
 
 async function query(filterBy = {}) {
     const criteria = _buildCriteria(filterBy)
@@ -95,6 +97,18 @@ async function update(stay) {
     }
 }
 
+async function getById (id){
+    try{
+        const collection = await dbService.getCollection('stay') //bring the collection
+        const stay = await collection.findOne({"_id":ObjectId(id)})
+        return stay
+    }
+    catch(err){
+        logger.error('cannot find stay by id', err)
+        throw err
+    }
+} 
+
 
 
 function _buildCriteria(filterBy) {
@@ -116,7 +130,8 @@ module.exports = {
     query,
     remove,
     add,
-    update
+    update,
+    getById
 }
 
 
