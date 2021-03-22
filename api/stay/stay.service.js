@@ -3,98 +3,120 @@ const ObjectId = require('mongodb').ObjectId
 const asyncLocalStorage = require('../../services/als.service')
 
 async function query(filterBy = {}) {
+    const criteria = _buildCriteria(filterBy)
     try {
-        // const criteria = _buildCriteria(filterBy)
-        const collection = await dbService.getCollection('review')
-        // const reviews = await collection.find(criteria).toArray()
-        var reviews = await collection.aggregate([
-            {
-                $match: filterBy
-            },
-            {
-                $lookup:
-                {
-                    localField: 'byUserId',
-                    from: 'user',
-                    foreignField: '_id',
-                    as: 'byUser'
-                }
-            },
-            {
-                $unwind: '$byUser'
-            },
-            {
-                $lookup:
-                {
-                    localField: 'aboutUserId',
-                    from: 'user',
-                    foreignField: '_id',
-                    as: 'aboutUser'
-                }
-            },
-            {
-                $unwind: '$aboutUser'
-            }
-        ]).toArray()
-        reviews = reviews.map(review => {
-            review.byUser = { _id: review.byUser._id, fullname: review.byUser.fullname }
-            review.aboutUser = { _id: review.aboutUser._id, fullname: review.aboutUser.fullname }
-            delete review.byUserId
-            delete review.aboutUserId
-            return review
-        })
+        const collection = await dbService.getCollection('stay')
+        const stays = await collection.find(criteria).toArray()
+        return stays
+        // var stays = await collection.aggregate([
+        //     {
+        //         $match: filterBy
+        //     },
+        //     {
+        //         $lookup:
+        //         {
+        //             localField: 'byUserId',
+        //             from: 'user',
+        //             foreignField: '_id',
+        //             as: 'byUser'
+        //         }
+        //     },
+        //     {
+        //         $unwind: '$byUser'
+        //     },
+        //     {
+        //         $lookup:
+        //         {
+        //             localField: 'aboutUserId',
+        //             from: 'user',
+        //             foreignField: '_id',
+        //             as: 'aboutUser'
+        //         }
+        //     },
+        //     {
+        //         $unwind: '$aboutUser'
+        //     }
+        // ]).toArray()
 
-        return reviews
     } catch (err) {
-        logger.error('cannot find reviews', err)
+        logger.error('cannot find stays', err)
         throw err
     }
 
 }
 
-async function remove(reviewId) {
+async function remove(stayId) {
     try {
         const store = asyncLocalStorage.getStore()
-        const { userId, isAdmin } = store
-        const collection = await dbService.getCollection('review')
+        const { userId } = store
+        const collection = await dbService.getCollection('stay')
         // remove only if user is owner/admin
-        const query = { _id: ObjectId(reviewId) }
-        if (!isAdmin) query.byUserId = ObjectId(userId)
+        const query = { _id: ObjectId(stayId) }
+        // if (!isAdmin) query.byUserId = ObjectId(userId)
         await collection.deleteOne(query)
         // return await collection.deleteOne({ _id: ObjectId(reviewId), byUserId: ObjectId(userId) })
     } catch (err) {
-        logger.error(`cannot remove review ${reviewId}`, err)
+        logger.error(`cannot remove stay ${stayId}`, err)
         throw err
     }
 }
 
+async function add(stay){
+    try{
+        const collection = await dbService.getCollection('stay') //bring the collection
+        await collection.insertOne(stay)
+        return stay
+    
+}
+catch(err){
+    logger.error('cannot insert toy', err)
+    throw err
+}
 
-async function add(review) {
+}
+
+async function update(stay) {
     try {
         // peek only updatable fields!
-        const reviewToAdd = {
-            byUserId: ObjectId(review.byUserId),
-            aboutUserId: ObjectId(review.aboutUserId),
-            txt: review.txt
+        const stayToAdd = {
+            name: stay.name,
+            price: stay.price,
+            guests: stay.guests,
+            imgUrls:stay.imgUrls,
+            favorites:stay.favorites,
+            reviews:stay.reviews
         }
-        const collection = await dbService.getCollection('review')
-        await collection.insertOne(reviewToAdd)
-        return reviewToAdd;
+        const collection = await dbService.getCollection('stay')
+        await collection.insertOne(stayToAdd)
+        return stayToAdd;
     } catch (err) {
-        logger.error('cannot insert review', err)
+        logger.error('cannot update stay', err)
         throw err
     }
 }
+
+
 
 function _buildCriteria(filterBy) {
     const criteria = {}
+    if (filterBy.location) {
+        const txtCriteria = { $regex: filterBy.location, $options: 'i' }
+        criteria.name =txtCriteria 
+    }
+    if (filterBy.guests) {
+        criteria.guests = filterBy.guests
+    }
+    // if(filterBy.price){
+    //     criteria.price = filterBy.price
+    // }
     return criteria
 }
 
 module.exports = {
     query,
     remove,
-    add
+    add,
+    update
 }
 
 

@@ -1,43 +1,58 @@
 const logger = require('../../services/logger.service')
-const userService = require('../user/user.service')
+// const userService = require('../user/user.service')
 const socketService = require('../../services/socket.service')
-const reviewService = require('./stay.service')
+const stayService = require('./stay.service')
 
-async function getReviews(req, res) {
+async function getStays(req, res) {
     try {
-        const reviews = await reviewService.query(req.query)
-        res.send(reviews)
+        const stays = await stayService.query(req.query)
+        res.send(stays)
     } catch (err) {
-        logger.error('Cannot get reviews', err)
-        res.status(500).send({ err: 'Failed to get reviews' })
+        logger.error('Cannot get stays', err)
+        res.status(500).send({ err: 'Failed to get stays' })
     }
 }
 
-async function deleteReview(req, res) {
+
+async function getStayById(req, res) {
     try {
-        await reviewService.remove(req.params.id)
+        const StayId = req.params.StayId
+        const stay = await stayService.getById(StayId)
+        res.json(stay)
+
+    } catch (err) {
+        logger.error('Cannot get stay by id', err)
+        res.status(500).send({ 
+            err: 'Failed to get stay by id'
+        })
+    }
+}
+
+
+async function deleteStay(req, res) {
+    try {
+        await stayService.remove(req.params.id)
         res.send({ msg: 'Deleted successfully' })
     } catch (err) {
-        logger.error('Failed to delete review', err)
-        res.status(500).send({ err: 'Failed to delete review' })
+        logger.error('Failed to delete stay', err)
+        res.status(500).send({ err: 'Failed to delete stay' })
     }
 }
 
 
-async function addReview(req, res) {
+async function addStay(req, res) {
     try {
-        var review = req.body
-        review.byUserId = req.session.user._id
-        review = await reviewService.add(review)
-        
+        var stay = req.body
+        const {_id , fullname, imgUrl} = req.session.user
+        stay.host = {_id , fullname, imgUrl}
+        stay = await stayService.add(stay)     
         // prepare the updated review for sending out
-        review.byUser = await userService.getById(review.byUserId)
-        review.aboutUser = await userService.getById(review.aboutUserId)
-
+        // stay.byUser = await userService.getById(review.byUserId)
+        // review.aboutUser = await userService.getById(review.aboutUserId)
         console.log('CTRL SessionId:', req.sessionID);
-        socketService.broadcast({type: 'review-added', data: review})
-        socketService.emitToAll({type: 'user-updated', data: review.byUser, room: req.session.user._id})
-        res.send(review)
+        socketService.broadcast({type: 'stay-added', data: stay})
+        socketService.emitToAll({type: 'stay-updated', data: stay, room: req.session.user._id})
+        res.send(stay)
 
     } catch (err) {
         console.log(err)
@@ -46,8 +61,22 @@ async function addReview(req, res) {
     }
 }
 
+async function updateStay (req, res) {
+    try{
+        const {name, price, imgUrls , capacity , amenities } = req.body
+        const stay = {name, price, imgUrls , capacity , amenities }
+        const savedStay = await stayService.update(stay)
+        res.json(savedStay)
+    }
+    catch(err){
+        res.status(500).send('cannot update stay')
+    }
+}
+
 module.exports = {
-    getReviews,
-    deleteReview,
-    addReview
+    getStays,
+    deleteStay,
+    addStay,
+    getStayById,
+    updateStay
 }
