@@ -51,10 +51,13 @@ async function remove(stayId) {
     try {
         const store = asyncLocalStorage.getStore()
         const { userId } = store
+        console.log("🚀 ~ file: stay.service.js ~ line 54 ~ remove ~ userId", userId)
         const collection = await dbService.getCollection('stay')
         // remove only if user is owner/admin
         const query = { _id: ObjectId(stayId) }
-        // if (!isAdmin) query.byUserId = ObjectId(userId)
+        const stay = await collection.findOne({"_id":ObjectId(stayId)})
+        console.log("🚀 ~ file: stay.service.js ~ line 61 ~ remove ~ stay.host._id", stay.host._id) 
+        if(stay.host._id !== userId) res.status(401).send({ err: 'Failed to Delete' })
         await collection.deleteOne(query)
         // return await collection.deleteOne({ _id: ObjectId(reviewId), byUserId: ObjectId(userId) })
     } catch (err) {
@@ -115,16 +118,17 @@ function _buildCriteria(filterBy) {
     const criteria = {}
     if (filterBy.location) {
         const txtCriteria = { $regex: filterBy.location, $options: 'i' }
-        criteria.name =txtCriteria 
+        criteria['loc.address'] =  txtCriteria 
     }
-    if (filterBy.guests) {
-        criteria.guests = filterBy.guests
+    if (filterBy.guests !=='0') {
+        criteria.capacity = {$gte: parseInt(filterBy.guests)} 
     }
     // if(filterBy.price){
     //     criteria.price = filterBy.price
     // }
+    console.log(criteria, 'criteria')
     return criteria
-}
+} 
 
 module.exports = {
     query,

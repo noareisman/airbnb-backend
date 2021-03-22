@@ -5,7 +5,6 @@ const logger = require('../../services/logger.service')
 
 
 async function getUsers(req, res) {
-    console.log()
     try {
         // const filterBy = {
         //     txt: req.query?.txt || '',

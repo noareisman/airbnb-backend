@@ -5,13 +5,14 @@ const stayService = require('./stay.service')
 
 async function getStays(req, res) {
     try {
+        console.log("🚀 ~ file: stay.controller.js ~ line 15 ~ getStays ~ req.query", req.query)
         const stays = await stayService.query(req.query)
         res.send(stays)
     } catch (err) {
         logger.error('Cannot get stays', err)
         res.status(500).send({ err: 'Failed to get stays' })
     }
-}
+} 
 
 
 async function getStayById(req, res) {
@@ -31,7 +32,8 @@ async function getStayById(req, res) {
 
 async function deleteStay(req, res) {
     try {
-        await stayService.remove(req.params.id)
+        console.log(req.params.stayId, 'req.params.id')
+        await stayService.remove(req.params.stayId)
         res.send({ msg: 'Deleted successfully' })
     } catch (err) {
         logger.error('Failed to delete stay', err)
@@ -43,7 +45,7 @@ async function deleteStay(req, res) {
 async function addStay(req, res) {
     try {
         var stay = req.body
-        console.log(req.session)
+        // console.log(req.session)
         const {_id , fullname, imgUrl} = req.session.user
         
         stay.host = {_id , fullname, imgUrl}
