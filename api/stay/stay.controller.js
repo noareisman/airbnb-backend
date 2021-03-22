@@ -1,7 +1,7 @@
 const logger = require('../../services/logger.service')
 const userService = require('../user/user.service')
 const socketService = require('../../services/socket.service')
-const reviewService = require('./review.service')
+const reviewService = require('./stay.service')
 
 async function getReviews(req, res) {
     try {
