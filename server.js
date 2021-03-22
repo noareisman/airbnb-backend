@@ -11,7 +11,7 @@ const session = expressSession({
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false,
-    maxAge: 1*60*60*1000
+    maxAge: 1*60*60*10000
     }
 
 })
