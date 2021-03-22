@@ -7,11 +7,11 @@ const PAGE_SIZE = 3;
 let pageIdx = 0;
 
 async function query(filterBy = {}) {
-    const criteria = _buildCriteria(filterBy);
+    // const criteria = _buildCriteria(filterBy);
     try {
         // const criteria = _buildCriteria(filterBy)
         const collection = await dbService.getCollection('order')
-        const allOrders = await collection.find(criteria).toArray()
+        const allOrders = await collection.find({}).toArray()
         // const orders = await collection.find(criteria).toArray()//alternative to upper line
         // var orders = await collection.aggregate([
         //     {
@@ -57,7 +57,7 @@ async function query(filterBy = {}) {
         // const startIdx = _getStartIdx(filterBy.pageDiff, orders.length);
         // orders = orders.slice(startIdx, startIdx + PAGE_SIZE);
         // return { orders, allOrders };
-        return orders
+        return allOrders
     } catch (err) {
         logger.error('cannot find orders', err)
         throw err
@@ -84,15 +84,9 @@ async function query(filterBy = {}) {
 
 async function add(order) {
     try {
-        // peek only updatable fields!
-        const orderToAdd = {
-            byUserId: ObjectId(order.byUserId),
-            aboutUserId: ObjectId(order.aboutUserId),
-            txt: order.txt
-        }
         const collection = await dbService.getCollection('order')
-        await collection.insertOne(orderToAdd)
-        return orderToAdd;
+        await collection.insertOne(order)
+        return order;
     } catch (err) {
         logger.error('cannot insert order', err)
         throw err
@@ -102,7 +96,7 @@ async function add(order) {
 
 async function getById(orderId) {
     try {
-        const collection = await dbService.getCollection('mr_order');
+        const collection = await dbService.getCollection('order');
         const order = await collection.findOne({ _id: ObjectId(orderId) });
         return order;
     } catch (err) {
@@ -114,41 +108,39 @@ async function save(order) {
     console.log('order:', order)
     try {
         let savedOrder = null;
-        const collection = await dbService.getCollection('mr_order');
+        const collection = await dbService.getCollection('order');
         if (order._id) {
             const orderToUpdate = { ...order };
             delete orderToUpdate._id;
-            await collection.updateOne({ _id: ObjectId(order._id) }, { $set: { ...orderToUpdate } });
+            await collection.updateOne({'_id': ObjectId(order._id) }, { $set: orderToUpdate });
             return order;
         } else {
             order.createdAt = Date.now();
-            order.reviews = null;
-            order.url = utilService.getRandomInt(1,17)+ '.jpg'
             savedOrder = await collection.insert(order);
-            return savedOrder.ops[0];
+            return savedOrder;
         }
     } catch (err) {
         throw err;
     }
 }
 
-function _buildCriteria(filterBy) {
-    let typesCriteria;
-    if (filterBy.types && filterBy.types.length) {
-        filterBy.types = filterBy.types.split(',');
-        typesCriteria = filterBy.types.map((type) => {
-            return { type: type };
-        });
-    }
-    const criteria = {};
-    if (filterBy.name) {
-        const txtCriteria = { $regex: filterBy.name, $options: 'i' };
-        criteria.name = txtCriteria;
-    }
-    if (filterBy.inStock !== 'all') criteria.inStock = JSON.parse(filterBy.inStock);
-    if (filterBy.types && filterBy.types.length) criteria.$or = typesCriteria;
-    return criteria;
-}
+// function _buildCriteria(filterBy) {
+//     let typesCriteria;
+//     if (filterBy.types && filterBy.types.length) {
+//         filterBy.types = filterBy.types.split(',');
+//         typesCriteria = filterBy.types.map((type) => {
+//             return { type };
+//         });
+//     }
+//     const criteria = {};
+//     if (filterBy.name) {
+//         const txtCriteria = { $regex: filterBy.name, $options: 'i' };
+//         criteria.name = txtCriteria;
+//     }
+//     if (filterBy.inStock !== 'all') criteria.inStock = JSON.parse(filterBy.inStock);
+//     if (filterBy.types && filterBy.types.length) criteria.$or = typesCriteria;
+//     return criteria;
+// }
 
 // async function addReview(toyId, review){
 //     try{
