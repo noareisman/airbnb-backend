@@ -19,13 +19,7 @@ async function query(filterBy = {}) {
     // const criteria = _buildCriteria(filterBy)
     try { 
         const collection = await dbService.getCollection('user')
-<<<<<<< HEAD
-        var users = await collection.find(criteria).toArray()
-        console.log('users:', users);
-
-=======
         var users = await collection.find({}).toArray()
->>>>>>> 5b1d28e9f935c55a23781ac3ea9d166b15cba2db
         users = users.map(user => {
             delete user.password
             user.createdAt = ObjectId(user._id).getTimestamp()
