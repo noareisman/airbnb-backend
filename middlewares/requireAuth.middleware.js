@@ -1,7 +1,6 @@
 const logger = require('../services/logger.service')
 
 async function requireAuth(req, res, next) {
-  console.log("🚀 ~ file: requireAuth.middleware.js ~ line 6 ~ requireAuth ~  req.session",  req.session)
   if (!req.session || !req.session.user) {
     res.status(401).end('Unauthorized!')
     return

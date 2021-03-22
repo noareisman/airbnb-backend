@@ -51,12 +51,10 @@ async function remove(stayId) {
     try {
         const store = asyncLocalStorage.getStore()
         const { userId } = store
-        console.log("🚀 ~ file: stay.service.js ~ line 54 ~ remove ~ userId", userId)
         const collection = await dbService.getCollection('stay')
         // remove only if user is owner/admin
         const query = { _id: ObjectId(stayId) }
         const stay = await collection.findOne({"_id":ObjectId(stayId)})
-        console.log("🚀 ~ file: stay.service.js ~ line 61 ~ remove ~ stay.host._id", stay.host._id) 
         if(stay.host._id !== userId) res.status(401).send({ err: 'Failed to Delete' })
         await collection.deleteOne(query)
         // return await collection.deleteOne({ _id: ObjectId(reviewId), byUserId: ObjectId(userId) })
@@ -86,14 +84,19 @@ async function update(stay) {
         const stayToAdd = {
             name: stay.name,
             price: stay.price,
-            guests: stay.guests,
+            capacity: stay.capacity,
             imgUrls:stay.imgUrls,
             favorites:stay.favorites,
-            reviews:stay.reviews
+            reviews:stay.reviews,
+            amenities:stay.amenities,
+            host:stay.host,
+            loc:stay.loc,
+            summary:stay.summary
         }
         const collection = await dbService.getCollection('stay')
-        await collection.insertOne(stayToAdd)
-        return stayToAdd;
+        await collection.updateOne({"_id":ObjectId(stay._id)},{$set:stayToAdd})
+        console.log("🚀 ~ file: stay.service.js ~ line 98 ~ update ~ stayToAdd", stayToAdd)
+        return stay;
     } catch (err) {
         logger.error('cannot update stay', err)
         throw err
@@ -126,7 +129,6 @@ function _buildCriteria(filterBy) {
     // if(filterBy.price){
     //     criteria.price = filterBy.price
     // }
-    console.log(criteria, 'criteria')
     return criteria
 } 
 
