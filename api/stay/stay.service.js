@@ -54,7 +54,8 @@ async function remove(stayId) {
         const collection = await dbService.getCollection('stay')
         // remove only if user is owner/admin
         const query = { _id: ObjectId(stayId) }
-        // if (!isAdmin) query.byUserId = ObjectId(userId)
+        const stay = await collection.findOne({"_id":ObjectId(stayId)})
+        if(stay.host._id !== userId) res.status(401).send({ err: 'Failed to Delete' })
         await collection.deleteOne(query)
         // return await collection.deleteOne({ _id: ObjectId(reviewId), byUserId: ObjectId(userId) })
     } catch (err) {
@@ -83,14 +84,19 @@ async function update(stay) {
         const stayToAdd = {
             name: stay.name,
             price: stay.price,
-            guests: stay.guests,
+            capacity: stay.capacity,
             imgUrls:stay.imgUrls,
             favorites:stay.favorites,
-            reviews:stay.reviews
+            reviews:stay.reviews,
+            amenities:stay.amenities,
+            host:stay.host,
+            loc:stay.loc,
+            summary:stay.summary
         }
         const collection = await dbService.getCollection('stay')
-        await collection.insertOne(stayToAdd)
-        return stayToAdd;
+        await collection.updateOne({"_id":ObjectId(stay._id)},{$set:stayToAdd})
+        console.log("🚀 ~ file: stay.service.js ~ line 98 ~ update ~ stayToAdd", stayToAdd)
+        return stay;
     } catch (err) {
         logger.error('cannot update stay', err)
         throw err
@@ -115,16 +121,16 @@ function _buildCriteria(filterBy) {
     const criteria = {}
     if (filterBy.location) {
         const txtCriteria = { $regex: filterBy.location, $options: 'i' }
-        criteria.name =txtCriteria 
+        criteria['loc.address'] =  txtCriteria 
     }
-    if (filterBy.guests) {
-        criteria.guests = filterBy.guests
+    if (filterBy.guests !=='0') {
+        criteria.capacity = {$gte: parseInt(filterBy.guests)} 
     }
     // if(filterBy.price){
     //     criteria.price = filterBy.price
     // }
     return criteria
-}
+} 
 
 module.exports = {
     query,

@@ -11,7 +11,7 @@ async function getStays(req, res) {
         logger.error('Cannot get stays', err)
         res.status(500).send({ err: 'Failed to get stays' })
     }
-}
+} 
 
 
 async function getStayById(req, res) {
@@ -31,7 +31,7 @@ async function getStayById(req, res) {
 
 async function deleteStay(req, res) {
     try {
-        await stayService.remove(req.params.id)
+        await stayService.remove(req.params.stayId)
         res.send({ msg: 'Deleted successfully' })
     } catch (err) {
         logger.error('Failed to delete stay', err)
@@ -43,7 +43,6 @@ async function deleteStay(req, res) {
 async function addStay(req, res) {
     try {
         var stay = req.body
-        console.log(req.session)
         const {_id , fullname, imgUrl} = req.session.user
         
         stay.host = {_id , fullname, imgUrl}
@@ -65,8 +64,9 @@ async function addStay(req, res) {
 
 async function updateStay (req, res) {
     try{
-        const {name, price, imgUrls , capacity , amenities } = req.body
-        const stay = {name, price, imgUrls , capacity , amenities }
+        const {name, price, imgUrls , capacity , amenities , _id , favorites, host, loc, reviews, summary} = req.body
+        const stay = {name, price, imgUrls , capacity , amenities , _id , favorites, host, loc, reviews, summary}
+        console.log(stay,'stay')
         const savedStay = await stayService.update(stay)
         res.json(savedStay)
     }

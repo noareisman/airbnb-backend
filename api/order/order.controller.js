@@ -14,27 +14,14 @@ async function getOrders(req, res) {
     }
 }
 
-// async function deleteOrder(req, res) {
-//     try {
-//         await orderService.remove(req.params.id)
-//         res.send({ msg: 'Deleted successfully' })
-//     } catch (err) {
-//         logger.error('Failed to delete order', err)
-//         res.status(500).send({ err: 'Failed to delete order' })
-//     }
-// }
-
-
 async function addOrder(req, res) {
     try {
         var order = req.body
         // order.byUserId = req.session.user._id?????????????????needed here?
         order = await orderService.add(order)
-        
         // prepare the updated order for sending out
         // order.byUser = await userService.getById(order.byUserId)
         // order.aboutUser = await userService.getById(order.aboutUserId)
-
         // console.log('CTRL SessionId:', req.sessionID);
         // socketService.broadcast({type: 'order-added', data: order})
         // socketService.emitToAll({type: 'user-updated', data: order.byUser, room: req.session.user._id})
@@ -49,7 +36,7 @@ async function addOrder(req, res) {
 
 async function getOrderById(req, res) {
     try {
-        const {orderId} = req.params;
+        const { orderId } = req.params;
         const order = await orderService.getById(orderId);
         res.send(order);
     } catch (err) {
@@ -66,8 +53,15 @@ async function updateOrder(req, res) {
         res.send(savedOrder);
 
     } catch (err) {
-        res.status(401).send({err:'Order doesn\'t exist'})
+        res.status(401).send({ err: 'Order doesn\'t exist' })
     }
+}
+
+module.exports = {
+    getOrders,
+    getOrderById,
+    addOrder,
+    updateOrder
 }
 
 // async function addReview(req,res){
@@ -82,11 +76,13 @@ async function updateOrder(req, res) {
 //     }
 // }
 
-
-module.exports = {
-    getOrders,
-    getOrderById,
-    // deleteOrder,
-    addOrder,
-    updateOrder
-}
+// deleteOrder,
+//     async function deleteOrder(req, res) {
+//         try {
+//             await orderService.remove(req.params.id)
+//             res.send({ msg: 'Deleted successfully' })
+//         } catch (err) {
+//             logger.error('Failed to delete order', err)
+//             res.status(500).send({ err: 'Failed to delete order' })
+//         }
+//     }
