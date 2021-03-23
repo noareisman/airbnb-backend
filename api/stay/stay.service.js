@@ -118,6 +118,7 @@ async function getById (id){
 
 
 function _buildCriteria(filterBy) {
+    console.log("🚀 ~ file: stay.service.js ~ line 121 ~ _buildCriteria ~ filterBy", filterBy)
     const criteria = {}
     if (filterBy.location) {
         const txtCriteria = { $regex: filterBy.location, $options: 'i' }
@@ -126,9 +127,14 @@ function _buildCriteria(filterBy) {
     if (filterBy.guests !=='0') {
         criteria.capacity = {$gte: parseInt(filterBy.guests)} 
     }
+    if (filterBy.price !=='0') {
+        criteria.price = {$lte: parseInt(filterBy.price)} 
+    }
     // if(filterBy.price){
     //     criteria.price = filterBy.price
     // }
+    
+    console.log("🚀 ~ file: stay.service.js ~ line 138 ~ _buildCriteria ~ criteria", criteria)
     return criteria
 } 
 
