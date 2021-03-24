@@ -50,12 +50,20 @@ async function query(filterBy = {}) {
 async function remove(stayId) {
     try {
         const store = asyncLocalStorage.getStore()
-        const { userId } = store
+        const {
+            userId
+        } = store
         const collection = await dbService.getCollection('stay')
         // remove only if user is owner/admin
-        const query = { _id: ObjectId(stayId) }
-        const stay = await collection.findOne({"_id":ObjectId(stayId)})
-        if(stay.host._id !== userId) res.status(401).send({ err: 'Failed to Delete' })
+        const query = {
+            _id: ObjectId(stayId)
+        }
+        const stay = await collection.findOne({
+            "_id": ObjectId(stayId)
+        })
+        if (stay.host._id !== userId) res.status(401).send({
+            err: 'Failed to Delete'
+        })
         await collection.deleteOne(query)
         // return await collection.deleteOne({ _id: ObjectId(reviewId), byUserId: ObjectId(userId) })
     } catch (err) {
@@ -64,17 +72,16 @@ async function remove(stayId) {
     }
 }
 
-async function add(stay){
-    try{
+async function add(stay) {
+    try {
         const collection = await dbService.getCollection('stay') //bring the collection
         await collection.insertOne(stay)
         return stay
-    
-}
-catch(err){
-    logger.error('cannot insert toy', err)
-    throw err
-}
+
+    } catch (err) {
+        logger.error('cannot insert toy', err)
+        throw err
+    }
 
 }
 
@@ -85,17 +92,20 @@ async function update(stay) {
             name: stay.name,
             price: stay.price,
             capacity: stay.capacity,
-            imgUrls:stay.imgUrls,
-            favorites:stay.favorites,
-            reviews:stay.reviews,
-            amenities:stay.amenities,
-            host:stay.host,
-            loc:stay.loc,
-            summary:stay.summary
+            imgUrls: stay.imgUrls,
+            favorites: stay.favorites,
+            reviews: stay.reviews,
+            amenities: stay.amenities,
+            host: stay.host,
+            loc: stay.loc,
+            summary: stay.summary
         }
         const collection = await dbService.getCollection('stay')
-        await collection.updateOne({"_id":ObjectId(stay._id)},{$set:stayToAdd})
-        console.log("🚀 ~ file: stay.service.js ~ line 98 ~ update ~ stayToAdd", stayToAdd)
+        await collection.updateOne({
+            "_id": ObjectId(stay._id)
+        }, {
+            $set: stayToAdd
+        })
         return stay;
     } catch (err) {
         logger.error('cannot update stay', err)
@@ -103,40 +113,51 @@ async function update(stay) {
     }
 }
 
-async function getById (id){
-    try{
+async function getById(id) {
+    try {
         const collection = await dbService.getCollection('stay') //bring the collection
-        const stay = await collection.findOne({"_id":ObjectId(id)})
+        const stay = await collection.findOne({
+            "_id": ObjectId(id)
+        })
         return stay
-    }
-    catch(err){
+    } catch (err) {
         logger.error('cannot find stay by id', err)
         throw err
     }
-} 
-
+}
 
 
 function _buildCriteria(filterBy) {
     console.log("🚀 ~ file: stay.service.js ~ line 121 ~ _buildCriteria ~ filterBy", filterBy)
     const criteria = {}
-    if (filterBy.location) {
-        const txtCriteria = { $regex: filterBy.location, $options: 'i' }
-        criteria['loc.address'] =  txtCriteria 
+    if (filterBy.location && filterBy.location !== 'undefined') {
+        const txtCriteria = {
+            $regex: filterBy.location,
+            $options: 'i'
+        }
+        criteria['loc.address'] = txtCriteria
     }
-    if (filterBy.guests !=='0') {
-        criteria.capacity = {$gte: parseInt(filterBy.guests)} 
+    if (filterBy.guests !== '0') {
+        criteria.capacity = {
+            $gte: parseInt(filterBy.guests)
+        }
     }
-    if (filterBy.price !=='0') {
-        criteria.price = {$lte: parseInt(filterBy.price)} 
+    if (filterBy.price !== '0') {
+        criteria.price = {
+            $lte: parseInt(filterBy.price)
+        }
     }
-    // if(filterBy.price){
-    //     criteria.price = filterBy.price
-    // }
-    
-    console.log("🚀 ~ file: stay.service.js ~ line 138 ~ _buildCriteria ~ criteria", criteria)
+    if (filterBy.amenities !== 'null' && filterBy.amenities !== 'undefined') {
+        const amenitiesArray = filterBy.amenities.split(',')
+        criteria.amenities = {
+            $all: amenitiesArray
+        }
+    }
+    if(filterBy._id !=='null'){
+        criteria['host._id'] = filterBy._id
+    }
     return criteria
-} 
+}
 
 module.exports = {
     query,
@@ -145,5 +166,3 @@ module.exports = {
     update,
     getById
 }
-
-
