@@ -128,7 +128,6 @@ async function getById(id) {
 
 
 function _buildCriteria(filterBy) {
-    console.log("🚀 ~ file: stay.service.js ~ line 121 ~ _buildCriteria ~ filterBy", filterBy)
     const criteria = {}
     if (filterBy.location && filterBy.location !== 'undefined') {
         const txtCriteria = {
