@@ -110,13 +110,14 @@ async function save(order) {
         let savedOrder = null;
         const collection = await dbService.getCollection('order');
         if (order._id) {
-            const orderToUpdate = { ...order };
+            const orderToUpdate = { ...order };// change to only updatable fields
             delete orderToUpdate._id;
             await collection.updateOne({'_id': ObjectId(order._id) }, { $set: orderToUpdate });
             return order;
         } else {
             order.createdAt = Date.now();
             savedOrder = await collection.insert(order);
+            
             return savedOrder;
         }
     } catch (err) {

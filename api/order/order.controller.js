@@ -26,7 +26,6 @@ async function addOrder(req, res) {
         // socketService.broadcast({type: 'order-added', data: order})
         // socketService.emitToAll({type: 'user-updated', data: order.byUser, room: req.session.user._id})
         res.send(order)
-
     } catch (err) {
         console.log(err)
         logger.error('Failed to add order', err)
