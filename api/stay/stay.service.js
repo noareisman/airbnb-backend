@@ -98,7 +98,7 @@ async function update(stay) {
             amenities: stay.amenities,
             host: stay.host,
             loc: stay.loc,
-            summary: stay.summary
+            summary: stay.summary 
         }
         const collection = await dbService.getCollection('stay')
         await collection.updateOne({
