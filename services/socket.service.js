@@ -40,6 +40,11 @@ function connectSockets(http, session) {
 
 
         })
+        socket.on('updateAns', (order)=>{
+         console.log(' socket service line 44',order )
+         gIo.emit ('updatedAns' ,order ) 
+
+        })
         //privat chat room
         socket.on("private message", (anotherSocketId, msg) => {
               socket.to(anotherSocketId).emit("private message", socket.id, msg);
