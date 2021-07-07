@@ -5,8 +5,7 @@ const {addOrder, getOrders, getOrderById, updateOrder} = require('./order.contro
 const router = express.Router()
 
 // middleware that is specific to this router
-// router.use(requireAuth)//????????
-// router.use(log)//????????
+// router.use(log)//can be used if all calls use this middleware
 
 router.get('/', log, getOrders)
 router.get('/:orderId', log, getOrderById)

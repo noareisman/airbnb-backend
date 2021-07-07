@@ -9,7 +9,6 @@ const router = express.Router()
 router.get('/', getUsers)
 router.get('/:userId', getUser)
 router.put('/:userId',  updateUser)
-
 // router.put('/:id',  requireAuth, updateUser)
 router.delete('/:userId',  requireAuth, requireAdmin, deleteUser)
 

@@ -11,7 +11,6 @@ router.get('/', log,  getStays)
 router.get('/:stayId', log, getStayById)
 router.post('/', log, addStay)
 router.delete('/:stayId',  requireAuth, deleteStay)
-router.put('/:toyId', log, requireAuth, updateStay)
-
+router.put('/:stayId', log, requireAuth, updateStay)
 
 module.exports = router

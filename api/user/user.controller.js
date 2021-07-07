@@ -1,15 +1,8 @@
 const userService = require('./user.service')
-const socketService = require('../../services/socket.service')
 const logger = require('../../services/logger.service')
-
-
 
 async function getUsers(req, res) {
     try {
-        // const filterBy = {
-        //     txt: req.query?.txt || '',
-        //     minBalance: +req.query?.minBalance || 0
-        // }
         const users = await userService.query()
         res.send(users)
     } catch (err) {
@@ -28,6 +21,8 @@ async function getUser(req, res) {
     }
 }
 
+
+//NOT IN USE
 async function deleteUser(req, res) {
     try {
         await userService.remove(req.params.id)
