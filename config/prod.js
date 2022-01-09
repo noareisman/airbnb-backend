@@ -1,3 +1,3 @@
 module.exports = {
-  'dbURL': 'mongodb+srv://eran:e054927557@cluster0.ehlvi.mongodb.net/HomeAway_DB?retryWrites=true&w=majority',
+  'dbURL': 'mmongodb+srv://noa:123@cluster0.pkbm6.mongodb.net/homeAway?retryWrites=true&w=majority',
 }
